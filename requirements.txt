@@ -182,12 +182,12 @@ sympy==1.13.1
 
 tokenizers==0.22.1
 
-# torch==2.5.1+cu121
+
 torch
 
-torchaudio==2.5.1+cu121
+torchaudio
 
-torchvision==0.20.1+cu121
+torchvision
 
 tqdm==4.67.1
 
