@@ -7,34 +7,40 @@ export default function PalettePage() {
   const [cmyk, setCmyk] = useState([0, 100, 100, 0]);
   const [analysis, setAnalysis] = useState([]);
   const [hexInput, setHexInput] = useState(color.hex); // 입력 중인 텍스트를 위한 별도 상태
+  // 어떤 모드에서 입력 중인지 기록 (picker, hex, rgb, cmyk)
+const [inputSource, setInputSource] = useState(null);
+
+
 
   // CMYK 입력 처리 함수
 const handleCmykChange = (index, value) => {
-  // 0~100 사이의 숫자만 허용
+  setInputSource('cmyk'); // "지금은 CMYK 입력 중이야"라고 명시
   const val = Math.max(0, Math.min(100, Number(value) || 0));
-  const newCmyk = [...cmyk];
-  newCmyk[index] = val;
-  setCmyk(newCmyk);
+  
+  const nextCmyk = [...cmyk];
+  nextCmyk[index] = val;
+  setCmyk(nextCmyk); // 1. CMYK 상태 업데이트
 
-  // CMYK를 RGB로 변환하는 공식
-  const c = newCmyk[0] / 100;
-  const m = newCmyk[1] / 100;
-  const y = newCmyk[2] / 100;
-  const k = newCmyk[3] / 100;
+  // 2. CMYK -> RGB/HEX 계산
+  const c = nextCmyk[0] / 100;
+  const m = nextCmyk[1] / 100;
+  const y = nextCmyk[2] / 100;
+  const k = nextCmyk[3] / 100;
 
   const r = Math.round(255 * (1 - c) * (1 - k));
   const g = Math.round(255 * (1 - m) * (1 - k));
   const b = Math.round(255 * (1 - y) * (1 - k));
-
   const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
-  
-  // 전체 색상 상태 업데이트
-  setColor({ r, g, b, hex });
+
+  setColor({ r, g, b, hex }); // 3. 컬러 상태 업데이트
 };
 
   // 1. 색상 변경 시 CMYK 및 유사도 자동 계산
   useEffect(() => {
-    const { r, g, b } = color;
+  const { r, g, b } = color;
+
+  // --- 1. CMYK 역산 로직 (입력 중이 아닐 때만 실행) ---
+  if (inputSource !== 'cmyk') {
     const r_ = r / 255;
     const g_ = g / 255;
     const b_ = b / 255;
@@ -44,42 +50,60 @@ const handleCmykChange = (index, value) => {
     let m = k === 1 ? 0 : (1 - g_ - k) / (1 - k);
     let y = k === 1 ? 0 : (1 - b_ - k) / (1 - k);
 
-    const newCmyk = [
+    setCmyk([
       Math.round(c * 100),
       Math.round(m * 100),
       Math.round(y * 100),
-      Math.round(k * 100),
-    ];
-    setCmyk(newCmyk);
+      Math.round(k * 100)
+    ]);
+  }
 
-    const results = colorDb
-      .map((item) => {
-        const dist = Math.sqrt(
-          item.cmyk.reduce(
-            (acc, val, i) => acc + Math.pow(val - newCmyk[i], 2),
-            0,
-          ),
-        );
-        return { ...item, similarity: Math.max(0, 100 - dist / 2).toFixed(1) };
-      })
-      .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, 5);
+  // --- 2. 한글 색상 이름 유사도 분석 (항상 실행) ---
+  // 현재 color(RGB)를 기준으로 다시 CMYK를 계산하여 DB와 대조합니다.
+  const r_ = r / 255;
+  const g_ = g / 255;
+  const b_ = b / 255;
+  let k_ = Math.min(1 - r_, 1 - g_, 1 - b_);
+  let c_ = k_ === 1 ? 0 : (1 - r_ - k_) / (1 - k_);
+  let m_ = k_ === 1 ? 0 : (1 - g_ - k_) / (1 - k_);
+  let y_ = k_ === 1 ? 0 : (1 - b_ - k_) / (1 - k_);
+  
+  const currentCmyk = [c_ * 100, m_ * 100, y_ * 100, k_ * 100];
 
-    setAnalysis(results);
-  }, [color]);
+  const results = colorDb.map(item => {
+  const dist = Math.sqrt(
+    item.cmyk.reduce((acc, val, i) => acc + Math.pow(val - currentCmyk[i], 2), 0)
+  );
+  
+  // 1. 기본 유사도 계산
+  let similarity = Math.max(0, 100 - (dist / 1.5));
+  
+  // 2. 보정 로직: 유사도가 99% 이상이면 아주 미세한 차이이므로 100%로 표시
+  if (similarity > 99.0) similarity = 100;
+  
+  return { 
+    ...item, 
+    similarity: similarity === 100 ? "100" : similarity.toFixed(1) 
+  };
+})
+  .sort((a, b) => b.similarity - a.similarity)
+  .slice(0, 5);
+
+  setAnalysis(results); // 분석 결과 상태 업데이트
+
+}, [color, colorDb]); // color가 바뀔 때마다 실행
 
   // RGB 개별 입력 핸들러
-  const handleRgbChange = (key, value) => {
-    const val = Math.max(0, Math.min(255, Number(value) || 0));
-    const newColor = { ...color, [key]: val };
-    newColor.hex =
-      "#" +
-      [newColor.r, newColor.g, newColor.b]
-        .map((x) => x.toString(16).padStart(2, "0"))
-        .join("")
-        .toUpperCase();
-    setColor(newColor);
-  };
+const handleRgbChange = (key, value) => {
+  setInputSource('rgb'); // 👈 반드시 추가 (CMYK 락 해제)
+  const val = Math.max(0, Math.min(255, Number(value) || 0));
+  const newColor = { ...color, [key]: val };
+  newColor.hex = '#' + [newColor.r, newColor.g, newColor.b]
+    .map(x => x.toString(16).padStart(2, '0'))
+    .join('')
+    .toUpperCase();
+  setColor(newColor);
+};
 
   // 간단한 밝기 계산 함수 (src/app/page.js 안에 추가)
   const getContrastColor = (r, g, b) => {
@@ -89,19 +113,17 @@ const handleCmykChange = (index, value) => {
   };
 
   // Hex 입력 처리 함수
-  const handleHexChange = (value) => {
-    setHexInput(value); // 텍스트 입력창은 즉시 업데이트
-
-    // 유효한 Hex 포맷(#+6자리)인지 확인
-    if (/^#[0-9A-F]{6}$/i.test(value)) {
-      const r = parseInt(value.slice(1, 3), 16);
-      const g = parseInt(value.slice(3, 5), 16);
-      const b = parseInt(value.slice(5, 7), 16);
-
-      // 유효한 색상일 경우 전체 상태 업데이트
-      setColor({ r, g, b, hex: value.toUpperCase() });
-    }
-  };
+const handleHexChange = (value) => {
+  setInputSource('hex'); // 👈 반드시 추가 (CMYK 락 해제)
+  setHexInput(value);
+  
+  if (/^#[0-9A-F]{6}$/i.test(value)) {
+    const r = parseInt(value.slice(1, 3), 16);
+    const g = parseInt(value.slice(3, 5), 16);
+    const b = parseInt(value.slice(5, 7), 16);
+    setColor({ r, g, b, hex: value.toUpperCase() });
+  }
+};
 
   // 외부(피커, RGB 수정)에서 color.hex가 바뀔 때 입력창도 동기화
   useEffect(() => {
@@ -133,19 +155,20 @@ const handleCmykChange = (index, value) => {
                   document.getElementById("mainPicker").showPicker()
                 }
               />
-              <input
-                id="mainPicker"
-                type="color"
-                value={color.hex}
-                onChange={(e) => {
-                  const hex = e.target.value.toUpperCase();
-                  const r = parseInt(hex.slice(1, 3), 16);
-                  const g = parseInt(hex.slice(3, 5), 16);
-                  const b = parseInt(hex.slice(5, 7), 16);
-                  setColor({ r, g, b, hex });
-                }}
-                className="absolute opacity-0 w-0 h-0"
-              />
+              <input 
+  id="mainPicker" 
+  type="color" 
+  value={color.hex} 
+  onChange={(e) => {
+    setInputSource('picker'); // 👈 반드시 추가 (CMYK 락 해제)
+    const hex = e.target.value.toUpperCase();
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    setColor({ r, g, b, hex });
+  }} 
+  className="absolute opacity-0 w-0 h-0" 
+/>
             </div>
 
             {/* // ... UI 부분 ... */}
@@ -222,30 +245,25 @@ const handleCmykChange = (index, value) => {
               Quick Palette
             </h3>
             <div className="grid grid-cols-12 gap-1">
-              {Array.from({ length: 48 }).map((_, i) => {
-                const h = i * 7.5;
-                const hsl = `hsl(${h}, 70%, 50%)`;
-                return (
-                  <div
-                    key={i}
-                    className="aspect-square rounded-sm cursor-pointer hover:scale-125 transition-all"
-                    style={{ backgroundColor: hsl }}
-                    onClick={(e) => {
-                      const rgb = e.target.style.backgroundColor
-                        .match(/\d+/g)
-                        .map(Number);
-                      const hex =
-                        "#" +
-                        rgb
-                          .map((x) => x.toString(16).padStart(2, "0"))
-                          .join("")
-                          .toUpperCase();
-                      setColor({ r: rgb[0], g: rgb[1], b: rgb[2], hex });
-                    }}
-                  />
-                );
-              })}
-            </div>
+  {Array.from({ length: 48 }).map((_, i) => {
+    const h = i * 7.5;
+    const hsl = `hsl(${h}, 70%, 50%)`;
+    return (
+      <div key={i} className="aspect-square rounded-sm cursor-pointer hover:scale-125 transition-all"
+        style={{ backgroundColor: hsl }}
+        onClick={(e) => {
+           // 1. 소스 초기화 (이걸 추가해야 CMYK가 다시 계산됩니다)
+           setInputSource('palette'); 
+           
+           // 2. 색상 추출 및 업데이트
+           const rgb = e.target.style.backgroundColor.match(/\d+/g).map(Number);
+           const hex = '#' + rgb.map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+           setColor({ r: rgb[0], g: rgb[1], b: rgb[2], hex });
+        }}
+      />
+    );
+  })}
+</div>
           </div>
         </section>
 
