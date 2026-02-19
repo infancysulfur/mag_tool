@@ -26,7 +26,8 @@ colorama==0.4.6
 
 cryptography==46.0.3
 
-diffusers @ git+https://github.com/huggingface/diffusers@edf36f5128abf3e6ecf92b5145115514363c58e6
+# diffusers @ git+https://github.com/huggingface/diffusers@edf36f5128abf3e6ecf92b5145115514363c58e6
+diffusers @ git+https://github.com/huggingface/diffusers
 
 Django==5.2.10
 
@@ -83,6 +84,7 @@ hstspreload==2025.1.1
 httpcore==1.0.9
 
 # httpx==0.28.1
+httpx
 
 huggingface-hub==0.36.0
 
