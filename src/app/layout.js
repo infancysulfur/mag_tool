@@ -4,6 +4,9 @@ import Sidebar from '../components/Sidebar';
 export const metadata = {
   title: 'Business Color Lab',
   description: '한글 색상 분석 도구',
+  verification : {
+    google: 'DYRoSjxA8kUL_nB-IHi6dGDSuyFbqcNBWsWHfAVSmdU'
+  }
 };
 
 export default function RootLayout({ children }) {
