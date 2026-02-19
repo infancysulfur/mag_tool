@@ -2,7 +2,7 @@ import './globals.css';
 import Sidebar from '../components/Sidebar';
 
 export const metadata = {
-  title: 'Business Color Lab',
+  title: 'Online Tool Lab - 한국 전통색 팔레트 & 색 혼합 시뮬레이터',
   description: '한글 색상 분석 도구',
   verification : {
     google: 'DYRoSjxA8kUL_nB-IHi6dGDSuyFbqcNBWsWHfAVSmdU'

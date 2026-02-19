@@ -40,7 +40,7 @@ export default function PalettePage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-8">색상 분석기</h1>
+      <h1 className="text-2xl font-bold mb-8 ">한국 전통색 팔레트</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         
         {/* 왼쪽: 컨트롤 패널 */}
@@ -68,30 +68,45 @@ export default function PalettePage() {
             </div>
           </div>
 
-          {/* RGB / CMYK 입력창 그룹 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-3 bg-white p-4 rounded-xl border">
-              <h3 className="text-sm font-bold text-red-500 border-b pb-2">RGB Channels</h3>
-              {['r', 'g', 'b'].map(key => (
-                <div key={key} className="flex items-center justify-between">
-                  <span className="uppercase text-xs font-medium text-gray-500">{key}</span>
-                  <input type="number" value={color[key]} onChange={(e) => handleRgbChange(key, e.target.value)}
-                    className="w-16 border rounded px-2 py-1 text-sm text-right font-mono" />
-                </div>
-              ))}
-            </div>
+ {/* RGB / CMYK 입력창 그룹 */}
+<div className="grid grid-cols-1 gap-6"> {/* 큰 박스들을 세로로 쌓거나 너비를 충분히 확보 */}
+  
+  {/* RGB Channels 가로 배열 */}
+  <div className="space-y-3 bg-white p-5 rounded-xl border">
+    <h3 className="text-sm font-bold text-red-500 border-b pb-2 mb-4">RGB Channels</h3>
+    <div className="flex flex-row gap-6"> {/* flex-row로 가로 정렬 */}
+      {['r', 'g', 'b'].map(key => (
+        <div key={key} className="flex flex-col items-start gap-1 flex-1">
+          <span className="uppercase text-[10px] font-bold text-gray-400 ml-1">{key}</span>
+          <input 
+            type="number" 
+            value={color[key]} 
+            onChange={(e) => handleRgbChange(key, e.target.value)}
+            className="w-full border rounded-lg px-3 py-2 text-sm text-center font-mono focus:ring-2 focus:ring-red-200 outline-none transition-all" 
+          />
+        </div>
+      ))}
+    </div>
+  </div>
 
-            <div className="space-y-3 bg-white p-4 rounded-xl border">
-              <h3 className="text-sm font-bold text-cyan-600 border-b pb-2">CMYK (%)</h3>
-              {['C', 'M', 'Y', 'K'].map((label, i) => (
-                <div key={label} className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-500">{label}</span>
-                  <input type="text" value={cmyk[i]} readOnly
-                    className="w-16 border bg-gray-50 rounded px-2 py-1 text-sm text-right font-mono" />
-                </div>
-              ))}
-            </div>
-          </div>
+  {/* CMYK (%) 가로 배열 */}
+  <div className="space-y-3 bg-white p-5 rounded-xl border">
+    <h3 className="text-sm font-bold text-cyan-600 border-b pb-2 mb-4">CMYK (%)</h3>
+    <div className="flex flex-row gap-4"> {/* flex-row로 가로 정렬 */}
+      {['C', 'M', 'Y', 'K'].map((label, i) => (
+        <div key={label} className="flex flex-col items-start gap-1 flex-1">
+          <span className="text-[10px] font-bold text-gray-400 ml-1">{label}</span>
+          <input 
+            type="text" 
+            value={cmyk[i]} 
+            readOnly
+            className="w-full border bg-gray-50 rounded-lg px-3 py-2 text-sm text-center font-mono text-gray-500" 
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
 
           {/* 팔레트 그리드 */}
           <div>
@@ -139,7 +154,35 @@ export default function PalettePage() {
           </div>
         </section>
 
+
+
       </div>
+              <section class="max-w-4xl mx-auto my-12 p-8 bg-white shadow-lg rounded-xl border border-gray-100">
+  <div class="flex items-center mb-6">
+    <div class="w-10 h-10 bg-red-700 rounded-full flex items-center justify-center text-white mr-4">
+      <span class="text-xl">🎨</span>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-800">한국 전통색 팔레트 <span class="text-sm font-medium text-gray-400 ml-2">K-Traditional Palette</span></h2>
+  </div>
+
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-gray-700 mb-2">기능 설명</h3>
+    <p class="text-gray-600 leading-relaxed">
+      선택하신 색상을 바탕으로 디지털 환경에 필수적인 <strong>HEX, RGB</strong> 값은 물론 인쇄 공정에 필요한 <strong>CMYK</strong> 데이터를 실시간으로 추출하여 제공합니다. <p></p>특히, 고유의 미학을 지닌 <strong>한국 전통 오방색 및 간색 체계</strong>를 데이터베이스와 대조하여 현재 선택한 색상이 우리 전통색과 얼마나 유사한지 수치화된 지표로 안내해 드립니다.
+      <p></p>또한 <strong>RGB 값을 CMYK 값으로 변환</strong>할 수 있습니다.
+    </p>
+  </div>
+
+  <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
+    <h3 class="text-blue-800 font-bold mb-2 flex items-center">
+      <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V7h2v2z"></path></svg>
+      분석 인사이트
+    </h3>
+    <p class="text-blue-900 text-sm leading-relaxed">
+      본 기능은 현대적인 디지털 디자인 작업에 한국적 정체성을 조화롭게 녹여낼 수 있는 인사이트를 제공합니다.<p></p> 단순한 색상 추출을 넘어, 현대적 감각으로 재해석된 전통색과의 유사도 분석을 통해 <strong>K-브랜딩(K-Branding) 및 문화 콘텐츠 제작</strong>에 있어 독보적인 시각적 서사를 구축할 수 있습니다. <p></p>또한, 매체별(Web/Print) 정확한 수치를 제공함으로써 실무 작업의 효율성을 극대화하고 표준화된 한국 색채 사용을 장려합니다.
+    </p>
+  </div>
+</section>
     </div>
   );
 }
