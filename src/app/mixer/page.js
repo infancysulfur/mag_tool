@@ -31,7 +31,7 @@ export default function MixerPage() {
   }, [rows]);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-8 ">색 혼합 시뮬레이션</h1>
       <p className="text-gray-500 mb-8 leading-relaxed">
         여러 가지 색상을 원하는 비율로 혼합하여{" "}

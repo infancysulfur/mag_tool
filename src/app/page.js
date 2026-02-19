@@ -131,7 +131,7 @@ const handleHexChange = (value) => {
   }, [color.hex]);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-8 ">한국 전통색 팔레트</h1>
       <p className="text-gray-500 mb-8 leading-relaxed">
         선택하신 색상과 가장 유사한 <strong>표준 한글 색상 이름</strong>을
