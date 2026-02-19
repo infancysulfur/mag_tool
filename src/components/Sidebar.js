@@ -7,6 +7,7 @@ export default function Sidebar() {
   const menus = [
     { name: '🎨 한국 전통색 팔레트', path: '/' },
     { name: '🧪 색 혼합 시뮬레이션', path: '/mixer' },
+    { name: '📸 이미지 추출', path: '/extractor' }, // 새 메뉴 추가
   ];
 
   return (
