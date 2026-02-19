@@ -32,7 +32,7 @@ export default function MixerPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-8 ">색 혼합 시뮬레이션</h1>
+      <h1 className="text-2xl font-bold mb-8 ">색상 섞기</h1>
       <p className="text-gray-500 mb-8 leading-relaxed">
         여러 가지 색상을 원하는 비율로 혼합하여{" "}
         <strong>색깔 섞기 시뮬레이션</strong>합니다.
