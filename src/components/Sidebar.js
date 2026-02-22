@@ -11,6 +11,7 @@ export default function Navigation() {
     { name: '팔레트', path: '/', icon: '🎨' },
     { name: '이미지 추출', path: '/extractor', icon: '📸' },
     { name: '색상 섞기', path: '/mixer', icon: '🧪' },
+    { name: 'Colordle', path: '/colordle', icon: '🎯' },
   ];
 
   return (
